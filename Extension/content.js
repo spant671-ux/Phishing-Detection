@@ -109,7 +109,120 @@ if (window.__phishguard_loaded) {
       showWarningBanner(result);
     }
     // 'safe' — no interruption
+
+    // Cookie risk banner (independent of URL risk)
+    showCookieWarningBanner(result);
   }
+
+  // --------------- Cookie Warning Banner ---------------
+
+  /**
+   * Show a red warning banner if cookie risk is high.
+   * Reads cookieAnalysis from the result object.
+   */
+  function showCookieWarningBanner(result) {
+    // Remove any existing cookie banner first
+    removeCookieBanner();
+
+    if (!result || !result.cookieAnalysis) return;
+    if (result.cookieAnalysis.cookieRisk !== 'high') return;
+
+    const banner = document.createElement('div');
+    banner.id = 'phishguard-cookie-banner';
+    banner.innerHTML = `
+      <div style="
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 2147483646;
+        background: linear-gradient(135deg, #d32f2f, #b71c1c);
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        animation: phishguard-cookie-slide 0.35s ease-out;
+      ">
+        <div style="
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 12px 20px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        ">
+          <span style="font-size: 18px; flex-shrink: 0;">⚠️</span>
+          <div style="flex: 1; color: white;">
+            <strong style="font-size: 13px;">Warning:</strong>
+            <span style="font-size: 13px; opacity: 0.95; margin-left: 4px;">
+              This site uses high-risk cookies and tracking
+            </span>
+            <span style="font-size: 11px; opacity: 0.7; margin-left: 6px;">
+              (${result.cookieAnalysis.suspiciousCookies} suspicious of ${result.cookieAnalysis.totalCookies} cookies)
+            </span>
+          </div>
+          <button id="phishguard-cookie-dismiss" style="
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: background 0.2s;
+          ">Dismiss</button>
+        </div>
+      </div>
+
+      <style>
+        @keyframes phishguard-cookie-slide {
+          from { transform: translateY(-100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        #phishguard-cookie-dismiss:hover { background: rgba(255,255,255,0.35); }
+      </style>
+    `;
+
+    document.documentElement.appendChild(banner);
+
+    document.getElementById('phishguard-cookie-dismiss').addEventListener('click', () => {
+      removeCookieBanner();
+    });
+
+    // Auto-dismiss after 15 seconds
+    setTimeout(() => {
+      const existing = document.getElementById('phishguard-cookie-banner');
+      if (existing) {
+        existing.style.transition = 'opacity 0.3s ease';
+        existing.style.opacity = '0';
+        setTimeout(removeCookieBanner, 300);
+      }
+    }, 15000);
+  }
+
+  /**
+   * Remove cookie warning banner.
+   */
+  function removeCookieBanner() {
+    const existing = document.getElementById('phishguard-cookie-banner');
+    if (existing) existing.remove();
+  }
+
+  // --------------- Initial Storage Check ---------------
+  // Check chrome.storage.local on load for existing cookie results
+  // (handles case where analysis completed before content script loaded)
+  chrome.storage.local.get(['lastScanResult'], (data) => {
+    if (data.lastScanResult && data.lastScanResult.cookieAnalysis) {
+      try {
+        const resultHost = new URL(data.lastScanResult.url).hostname;
+        const currentHost = window.location.hostname;
+        if (resultHost === currentHost) {
+          showCookieWarningBanner(data.lastScanResult);
+        }
+      } catch (e) {
+        // URL parse failed — skip
+      }
+    }
+  });
 
   /**
    * Full-page blocking warning for confirmed phishing.

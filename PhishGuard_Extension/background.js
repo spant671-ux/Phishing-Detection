@@ -145,11 +145,28 @@ async function analyzeUrl(tabId, url, content) {
 
     const result = await response.json();
 
+    // --- Cookie Analysis (runs alongside URL result) ---
+    let cookieResult = { totalCookies: 0, suspiciousCookies: 0, cookieRisk: 'low' };
+    try {
+      const urlObj = new URL(url);
+      const cookies = await chrome.cookies.getAll({ url: url });
+      cookieResult = analyzeCookies(cookies, urlObj);
+    } catch (cookieErr) {
+      console.warn('[BG] Cookie analysis skipped:', cookieErr.message);
+    }
+
+    // Merge cookie analysis into the result
+    result.cookieAnalysis = cookieResult;
+    result.combined_risk = combineRisks(result.risk_level, cookieResult.cookieRisk);
+
     // Cache the result
     setCachedResult(url, result);
 
     // Store in local history
     saveToHistory(result);
+
+    // Persist to chrome.storage.local
+    chrome.storage.local.set({ lastScanResult: result });
 
     // Update tab state and notify content script
     updateTabState(tabId, { url, status: 'complete', result });
@@ -243,6 +260,91 @@ function setCachedResult(url, result) {
     const oldest = scanCache.keys().next().value;
     scanCache.delete(oldest);
   }
+}
+
+// --------------- Cookie Analysis ---------------
+
+/**
+ * Analyze cookies for the current site and return a risk assessment.
+ * @param {Array} cookies - Array of chrome.cookies.Cookie objects
+ * @param {URL} currentUrl - Parsed URL object of the current page
+ * @returns {{ totalCookies: number, suspiciousCookies: number, cookieRisk: 'low'|'medium'|'high' }}
+ */
+function analyzeCookies(cookies, currentUrl) {
+  const currentDomain = currentUrl.hostname.replace(/^www\./, '');
+  const isHttps = currentUrl.protocol === 'https:';
+  const THIRTY_DAYS = 30 * 24 * 60 * 60; // seconds
+  const SUSPICIOUS_NAMES = ['track', 'ad', 'token', 'session', 'id'];
+
+  let suspiciousCount = 0;
+  const flags = [];
+
+  for (const cookie of cookies) {
+    let isSuspicious = false;
+
+    // 1. Third-party cookie check
+    const cookieDomain = (cookie.domain || '').replace(/^\./, '').replace(/^www\./, '');
+    if (cookieDomain && !currentDomain.endsWith(cookieDomain) && !cookieDomain.endsWith(currentDomain)) {
+      isSuspicious = true;
+    }
+
+    // 2. Suspicious name check
+    const nameLower = (cookie.name || '').toLowerCase();
+    if (SUSPICIOUS_NAMES.some(keyword => nameLower.includes(keyword))) {
+      isSuspicious = true;
+    }
+
+    // 3. Insecure cookie on HTTPS site
+    if (isHttps && !cookie.secure) {
+      isSuspicious = true;
+    }
+
+    // 4. Long expiry check (> 30 days)
+    if (cookie.expirationDate) {
+      const secondsUntilExpiry = cookie.expirationDate - (Date.now() / 1000);
+      if (secondsUntilExpiry > THIRTY_DAYS) {
+        isSuspicious = true;
+      }
+    }
+
+    if (isSuspicious) suspiciousCount++;
+  }
+
+  // Determine risk level based on ratio and absolute count
+  const total = cookies.length;
+  let cookieRisk = 'low';
+
+  if (total > 0) {
+    const ratio = suspiciousCount / total;
+    if (suspiciousCount >= 10 || ratio >= 0.6) {
+      cookieRisk = 'high';
+    } else if (suspiciousCount >= 4 || ratio >= 0.3) {
+      cookieRisk = 'medium';
+    }
+  }
+
+  return {
+    totalCookies: total,
+    suspiciousCookies: suspiciousCount,
+    cookieRisk
+  };
+}
+
+/**
+ * Combine URL risk level with cookie risk level.
+ * The higher risk always wins.
+ */
+function combineRisks(urlRisk, cookieRisk) {
+  const riskOrder = { safe: 0, low: 0, suspicious: 1, medium: 1, phishing: 2, high: 2, error: -1 };
+  const resultMap = ['safe', 'suspicious', 'phishing'];
+
+  const urlLevel = riskOrder[urlRisk] ?? 0;
+  const cookieLevel = riskOrder[cookieRisk] ?? 0;
+
+  // If URL analysis errored, defer to cookie risk mapping
+  if (urlRisk === 'error') return urlRisk;
+
+  return resultMap[Math.max(urlLevel, cookieLevel)];
 }
 
 // --------------- Storage Helpers ---------------

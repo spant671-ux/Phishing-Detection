@@ -98,6 +98,57 @@ const ResultCard = ({ result }) => {
         </div>
       )}
 
+      {/* Cookie Analysis */}
+      {result.cookieAnalysis && (
+        <div className="border-t border-white/5 pt-4 mt-4 animate-fade-in">
+          <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-4 flex items-center gap-2">
+            <span className="text-sm">🍪</span> Cookie Analysis
+          </h4>
+          <div className="grid grid-cols-3 gap-3">
+            {/* Total Cookies */}
+            <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+              <span className="text-2xl font-bold text-text-primary">
+                {result.cookieAnalysis.totalCookies}
+              </span>
+              <span className="text-[10px] font-medium text-text-muted uppercase tracking-wider">Total</span>
+            </div>
+            {/* Suspicious Cookies */}
+            <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+              <span className="text-2xl font-bold text-warning">
+                {result.cookieAnalysis.suspiciousCookies}
+              </span>
+              <span className="text-[10px] font-medium text-text-muted uppercase tracking-wider">Suspicious</span>
+            </div>
+            {/* Cookie Risk Badge */}
+            <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+              <span className={`inline-block px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide
+                ${result.cookieAnalysis.cookieRisk === 'high' 
+                  ? 'bg-danger/15 text-danger border border-danger/20' 
+                  : result.cookieAnalysis.cookieRisk === 'medium'
+                    ? 'bg-warning/15 text-warning border border-warning/20'
+                    : 'bg-safe/15 text-safe border border-safe/20'
+                }`}>
+                {result.cookieAnalysis.cookieRisk}
+              </span>
+              <span className="text-[10px] font-medium text-text-muted uppercase tracking-wider">Cookie Risk</span>
+            </div>
+          </div>
+
+          {/* Combined risk elevation note */}
+          {result.combined_risk && result.combined_risk !== result.risk_level && (
+            <div className="mt-3 px-4 py-2.5 rounded-xl bg-warning/[0.08] border border-warning/[0.12] 
+                            text-xs text-warning leading-relaxed flex items-center gap-2">
+              <span>⚡</span>
+              <span>
+                Combined risk elevated to{' '}
+                <strong className="text-warning font-bold">{result.combined_risk.toUpperCase()}</strong>
+                {' '}due to cookie analysis
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* URL */}
       <div className="mt-4 pt-3 border-t border-white/5 flex items-center gap-2 text-xs text-text-muted overflow-hidden">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (message.type === 'ANALYSIS_RESULT' && message.result) {
       state.currentResult = message.result;
       state.status = 'complete';
-
+      
       // Update history in background
       chrome.runtime.sendMessage({ type: 'GET_HISTORY' }, (response) => {
         if (response && response.history) {
@@ -265,6 +265,31 @@ function renderResultCard(result) {
         </div>
       ` : ''}
 
+      ${result.cookieAnalysis ? `
+        <div class="cookie-section">
+          <div class="cookie-title">🍪 Cookie Analysis</div>
+          <div class="cookie-stats">
+            <div class="cookie-stat">
+              <span class="cookie-stat-value">${result.cookieAnalysis.totalCookies}</span>
+              <span class="cookie-stat-label">Total</span>
+            </div>
+            <div class="cookie-stat">
+              <span class="cookie-stat-value suspicious-count">${result.cookieAnalysis.suspiciousCookies}</span>
+              <span class="cookie-stat-label">Suspicious</span>
+            </div>
+            <div class="cookie-stat">
+              <span class="cookie-risk-badge ${result.cookieAnalysis.cookieRisk}">${result.cookieAnalysis.cookieRisk.toUpperCase()}</span>
+              <span class="cookie-stat-label">Cookie Risk</span>
+            </div>
+          </div>
+          ${result.combined_risk && result.combined_risk !== result.risk_level ? `
+            <div class="combined-risk-note">
+              ⚡ Combined risk elevated to <strong>${result.combined_risk.toUpperCase()}</strong> due to cookie analysis
+            </div>
+          ` : ''}
+        </div>
+      ` : ''}
+
       <div class="url-display" title="${escapeHtml(result.url || '')}">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
@@ -291,11 +316,11 @@ function renderHistory() {
   return `
     <div class="history-list">
       ${state.history.slice(0, 15).map(item => {
-    const icon = item.risk_level === 'phishing' ? '🚨' :
-      item.risk_level === 'suspicious' ? '⚠️' : '✅';
-    const cls = item.risk_level || 'safe';
-    const time = formatTime(item.timestamp);
-    return `
+        const icon = item.risk_level === 'phishing' ? '🚨' :
+                     item.risk_level === 'suspicious' ? '⚠️' : '✅';
+        const cls = item.risk_level || 'safe';
+        const time = formatTime(item.timestamp);
+        return `
           <div class="history-item ${cls}">
             <span class="history-icon">${icon}</span>
             <div class="history-details">
@@ -307,7 +332,7 @@ function renderHistory() {
             </div>
           </div>
         `;
-  }).join('')}
+      }).join('')}
     </div>
   `;
 }

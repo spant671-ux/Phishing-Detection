@@ -265,6 +265,44 @@ function renderResultCard(result) {
         </div>
       ` : ''}
 
+      ${result.cookieAnalysis ? (() => {
+        const cr = result.cookieAnalysis;
+        const riskClass = cr.cookieRisk;
+        const riskIcon = riskClass === 'high' ? '🔴' : riskClass === 'medium' ? '🟡' : '🟢';
+        const riskMsg = riskClass === 'high'
+          ? 'High-risk tracking cookies detected'
+          : riskClass === 'medium'
+          ? 'This site uses tracking cookies'
+          : 'This site looks safe';
+        return `
+        <div class="cookie-section ${riskClass}">
+          <div class="cookie-title">🍪 Cookie Analysis</div>
+          <div class="cookie-message ${riskClass}">
+            <span class="cookie-message-icon">${riskIcon}</span>
+            <span class="cookie-message-text">${riskMsg}</span>
+          </div>
+          <div class="cookie-stats">
+            <div class="cookie-stat">
+              <span class="cookie-stat-value">${cr.totalCookies}</span>
+              <span class="cookie-stat-label">Total</span>
+            </div>
+            <div class="cookie-stat">
+              <span class="cookie-stat-value suspicious-count">${cr.suspiciousCookies}</span>
+              <span class="cookie-stat-label">Suspicious</span>
+            </div>
+            <div class="cookie-stat">
+              <span class="cookie-risk-badge ${riskClass}">${riskClass.toUpperCase()}</span>
+              <span class="cookie-stat-label">Cookie Risk</span>
+            </div>
+          </div>
+          ${result.combined_risk && result.combined_risk !== result.risk_level ? `
+            <div class="combined-risk-note">
+              ⚡ Combined risk elevated to <strong>${result.combined_risk.toUpperCase()}</strong> due to cookie analysis
+            </div>
+          ` : ''}
+        </div>`;
+      })() : ''}
+
       <div class="url-display" title="${escapeHtml(result.url || '')}">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>

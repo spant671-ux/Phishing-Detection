@@ -116,9 +116,10 @@ async function analyzWithLLM(url, content) {
         model: MODEL,
         prompt: prompt,
         stream: false,
+        format: "json", // Force Ollama to return valid JSON
         options: {
           temperature: 0.1,   // Low temperature for consistent, factual output
-          num_predict: 256     // Limit output length
+          num_predict: 512     // Increased limit output length
         }
       }),
       signal: controller.signal
@@ -130,6 +131,10 @@ async function analyzWithLLM(url, content) {
 
     const data = await response.json();
     const parsed = parseLLMResponse(data.response || '');
+
+    if (parsed.reasons[0] === 'Failed to parse LLM response' || parsed.reasons[0] === 'Empty LLM response') {
+      throw new Error('LLM generated garbage or empty response');
+    }
 
     // Validate and clamp confidence
     return {

@@ -79,10 +79,11 @@ async function runTests() {
       console.log(`\n✗ ERROR: ${test.url} — ${error.message}`);
     }
   }
-
   console.log('\n' + '='.repeat(85));
   console.log(`\n📊 Results: ${passed}/${total} tests matched expected risk level`);
-  console.log(`ℹ️  Note: LLM was ${testCases.length > 0 ? 'likely offline — using rule-based analysis only' : 'unknown'}\n`);
+  
+  // Note: Since individual results report 'llm_available', we know LLM is working if the server is up.
+  console.log(`ℹ️  Note: LLM is configured (gemma4) and tests completed. Check individual rows for LLM Online status.\n`);
 }
 
 runTests();

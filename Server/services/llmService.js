@@ -5,6 +5,9 @@
  * for AI-powered phishing detection analysis.
  */
 
+const dotenv = require("dotenv")
+dotenv.config()
+
 const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434/api/generate';
 const MODEL = process.env.OLLAMA_MODEL || 'gemma4';
 const TIMEOUT_MS = 60000; // 60 second timeout for larger models

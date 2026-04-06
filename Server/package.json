@@ -1,0 +1,24 @@
+{
+  "name": "phishguard-server",
+  "version": "1.0.0",
+  "description": "PhishGuard backend server - AI-powered phishing detection API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "phishing",
+    "security",
+    "ai",
+    "detection"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}

@@ -6,6 +6,17 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    port: 3000, // change this to any port you want
+    port: 3000,
   },
+  build: {
+    outDir: '../Extension/popup-dist',
+    rollupOptions: {
+      input: 'index.html',
+      output: {
+        entryFileNames: 'popup-bundle.js',
+        chunkFileNames: 'popup-[name].js',
+        assetFileNames: 'popup-[name].[ext]'
+      }
+    }
+  }
 })

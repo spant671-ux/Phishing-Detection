@@ -9,7 +9,7 @@
 const SUSPICIOUS_TLDS = [
   '.tk', '.ml', '.ga', '.cf', '.gq', '.buzz', '.top', '.xyz',
   '.club', '.work', '.click', '.link', '.info', '.online', '.site',
-  '.icu', '.cam', '.rest', '.monster'
+  '.icu', '.cam', '.rest', '.monster',
 ];
 
 // Keywords that indicate phishing content
@@ -22,7 +22,7 @@ const PHISHING_KEYWORDS = [
   'billing information', 'payment failed', 'update payment method',
   'social security', 'credit card number', 'bank account',
   'wire transfer', 'gift card', 'urgent action required',
-  'dear customer', 'dear user', 'congratulations you won'
+  'dear customer', 'dear user', 'congratulations you won',
 ];
 
 // Brands commonly impersonated in phishing
@@ -31,7 +31,7 @@ const IMPERSONATED_BRANDS = [
   'facebook', 'instagram', 'whatsapp', 'dropbox', 'chase', 'wellsfargo',
   'bankofamerica', 'citibank', 'usps', 'fedex', 'dhl', 'irs',
   'linkedin', 'twitter', 'coinbase', 'blockchain', 'metamask',
-  'binance', 'steam', 'roblox', 'epic games'
+  'binance', 'steam', 'roblox', 'epic games',
 ];
 
 /**
@@ -78,7 +78,7 @@ function analyzeUrl(url) {
     }
 
     // 5. Suspicious TLD check
-    const matchedTld = SUSPICIOUS_TLDS.find(tld => hostname.endsWith(tld));
+    const matchedTld = SUSPICIOUS_TLDS.find((tld) => hostname.endsWith(tld));
     if (matchedTld) {
       score += 0.25;
       flags.push(`Suspicious TLD: ${matchedTld}`);
@@ -132,7 +132,6 @@ function analyzeUrl(url) {
       score += 0.1;
       flags.push('Double file extension in URL path');
     }
-
   } catch {
     // Invalid URL — that itself is suspicious
     score += 0.2;
@@ -160,7 +159,8 @@ function analyzeContent(content) {
   for (const keyword of PHISHING_KEYWORDS) {
     if (lowerContent.includes(keyword)) {
       keywordHits++;
-      if (keywordHits <= 3) { // Only flag first 3 for readability
+      if (keywordHits <= 3) {
+        // Only flag first 3 for readability
         flags.push(`Suspicious phrase: "${keyword}"`);
       }
     }
@@ -175,7 +175,7 @@ function analyzeContent(content) {
   // 2. Check for form fields requesting sensitive data
   const sensitiveInputPatterns = [
     'password', 'ssn', 'social security', 'credit card',
-    'card number', 'cvv', 'expiration', 'pin', 'routing number'
+    'card number', 'cvv', 'expiration', 'pin', 'routing number',
   ];
   let sensitiveHits = 0;
   for (const pattern of sensitiveInputPatterns) {
@@ -192,7 +192,7 @@ function analyzeContent(content) {
   const urgencyPatterns = [
     'immediately', 'urgent', 'within 24 hours', 'within 48 hours',
     'right away', 'as soon as possible', 'account will be',
-    'will be terminated', 'will be locked', 'will be suspended'
+    'will be terminated', 'will be locked', 'will be suspended',
   ];
   let urgencyHits = 0;
   for (const pattern of urgencyPatterns) {
@@ -212,21 +212,17 @@ function analyzeContent(content) {
  * Combined rule-based analysis.
  * Returns { score: 0-1, flags: string[] }
  */
-function analyzeWithRules(url, content) {
+export function analyzeWithRules(url, content) {
   const urlResult = analyzeUrl(url);
   const contentResult = analyzeContent(content);
 
   // Additive scoring: URL and content scores stack (both contribute to risk)
-  // This ensures multiple indicators from different sources compound properly
-  const combinedScore = Math.min(
-    urlResult.score + contentResult.score * 0.7,
-    1
-  );
+  const combinedScore = Math.min(urlResult.score + contentResult.score * 0.7, 1);
 
   return {
     score: combinedScore,
-    flags: [...urlResult.flags, ...contentResult.flags]
+    flags: [...urlResult.flags, ...contentResult.flags],
   };
 }
 
-module.exports = { analyzeWithRules, analyzeUrl, analyzeContent };
+export { analyzeUrl, analyzeContent };

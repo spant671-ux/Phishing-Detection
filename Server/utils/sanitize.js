@@ -11,17 +11,15 @@
  * @param {number} maxLength - Maximum allowed length
  * @returns {string} Sanitized string
  */
-function sanitizeInput(input, maxLength = 2048) {
+export function sanitizeInput(input, maxLength = 2048) {
   if (typeof input !== 'string') {
     return '';
   }
 
   return input
-    .slice(0, maxLength)           // Enforce length limit
-    .replace(/\0/g, '')            // Remove null bytes
-    .replace(/<script[^>]*>.*?<\/script>/gi, '') // Strip script tags
-    .replace(/<[^>]*>/g, '')       // Strip HTML tags
+    .slice(0, maxLength)                                    // Enforce length limit
+    .replace(/\0/g, '')                                     // Remove null bytes
+    .replace(/<script[^>]*>.*?<\/script>/gi, '')             // Strip script tags
+    .replace(/<[^>]*>/g, '')                                 // Strip HTML tags
     .trim();
 }
-
-module.exports = { sanitizeInput };

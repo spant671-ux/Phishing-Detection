@@ -1,6 +1,9 @@
 import React from 'react'
+import { useSelector } from 'react-redux'
 
-const Header = ({ serverOnline }) => {
+const Header = () => {
+  const serverOnline = useSelector((state) => state.scan.serverOnline)
+
   return (
     <header className="sticky top-0 z-50 border-b border-border backdrop-blur-xl bg-bg-primary/80">
       <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">

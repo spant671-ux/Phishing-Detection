@@ -5,11 +5,8 @@
  * for AI-powered phishing detection analysis.
  */
 
-const dotenv = require("dotenv")
-dotenv.config()
+import { OLLAMA_URL, OLLAMA_MODEL } from '../config/env.js';
 
-const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434/api/generate';
-const MODEL = process.env.OLLAMA_MODEL || 'gemma4';
 const TIMEOUT_MS = 60000; // 60 second timeout for larger models
 
 /**
@@ -87,7 +84,7 @@ function parseLLMResponse(text) {
         confidence: confMatch ? parseInt(confMatch[1]) : 0,
         reasons: reasonsMatch
           ? reasonsMatch[1].match(/"([^"]+)"/g)?.map(s => s.replace(/"/g, '')) || []
-          : []
+          : [],
       };
     }
   } catch { /* continue */ }
@@ -97,7 +94,7 @@ function parseLLMResponse(text) {
   return {
     is_phishing: false,
     confidence: 0,
-    reasons: ['Failed to parse LLM response']
+    reasons: ['Failed to parse LLM response'],
   };
 }
 
@@ -105,7 +102,7 @@ function parseLLMResponse(text) {
  * Call Ollama API with the phishing analysis prompt.
  * Uses native fetch with AbortController for timeout.
  */
-async function analyzWithLLM(url, content) {
+export async function analyzWithLLM(url, content) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
@@ -116,16 +113,16 @@ async function analyzWithLLM(url, content) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: MODEL,
+        model: OLLAMA_MODEL,
         prompt: prompt,
         stream: false,
-        format: "json", // Force Ollama to return valid JSON
+        format: 'json', // Force Ollama to return valid JSON
         options: {
-          temperature: 0.1,   // Low temperature for consistent, factual output
-          num_predict: 512     // Increased limit output length
-        }
+          temperature: 0.1,  // Low temperature for consistent, factual output
+          num_predict: 512,  // Increased limit output length
+        },
       }),
-      signal: controller.signal
+      signal: controller.signal,
     });
 
     if (!response.ok) {
@@ -143,9 +140,8 @@ async function analyzWithLLM(url, content) {
     return {
       is_phishing: Boolean(parsed.is_phishing),
       confidence: Math.max(0, Math.min(100, Number(parsed.confidence) || 0)),
-      reasons: Array.isArray(parsed.reasons) ? parsed.reasons : []
+      reasons: Array.isArray(parsed.reasons) ? parsed.reasons : [],
     };
-
   } catch (error) {
     if (error.name === 'AbortError') {
       console.warn('[LLM] Request timed out after', TIMEOUT_MS, 'ms');
@@ -153,10 +149,7 @@ async function analyzWithLLM(url, content) {
     }
     console.error('[LLM] Error:', error.message);
     throw error;
-
   } finally {
     clearTimeout(timeoutId);
   }
 }
-
-module.exports = { analyzWithLLM };

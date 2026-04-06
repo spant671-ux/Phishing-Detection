@@ -1,6 +1,9 @@
 import React from 'react'
+import { useSelector } from 'react-redux'
 
-const ScanHistory = ({ history }) => {
+const ScanHistory = () => {
+  const history = useSelector((state) => state.scan.history)
+
   if (!history || history.length === 0) return null
 
   const getRiskConfig = (level) => {

@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (message.type === 'ANALYSIS_RESULT' && message.result) {
       state.currentResult = message.result;
       state.status = 'complete';
-      
+
       // Update history in background
       chrome.runtime.sendMessage({ type: 'GET_HISTORY' }, (response) => {
         if (response && response.history) {
@@ -291,11 +291,11 @@ function renderHistory() {
   return `
     <div class="history-list">
       ${state.history.slice(0, 15).map(item => {
-        const icon = item.risk_level === 'phishing' ? '🚨' :
-                     item.risk_level === 'suspicious' ? '⚠️' : '✅';
-        const cls = item.risk_level || 'safe';
-        const time = formatTime(item.timestamp);
-        return `
+    const icon = item.risk_level === 'phishing' ? '🚨' :
+      item.risk_level === 'suspicious' ? '⚠️' : '✅';
+    const cls = item.risk_level || 'safe';
+    const time = formatTime(item.timestamp);
+    return `
           <div class="history-item ${cls}">
             <span class="history-icon">${icon}</span>
             <div class="history-details">
@@ -307,7 +307,7 @@ function renderHistory() {
             </div>
           </div>
         `;
-      }).join('')}
+  }).join('')}
     </div>
   `;
 }

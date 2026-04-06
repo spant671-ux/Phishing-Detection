@@ -1,0 +1,8 @@
+0 safe https://www.google.com
+0 safe https://www.github.com
+100 phishing http://paypal-secure-login.suspicious-domain.tk/verify-account
+100 phishing http://192.168.1.1/@google-security-check
+40 suspicious http://sub1.sub2.sub3.sub4.example.com/login
+73 phishing http://g00gle-security-alert.xyz/verify-now
+45 suspicious http://xn--goog1e.com/account
+100 phishing http://paypal-login.scam.tk/verify

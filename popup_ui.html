@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PhishGuard Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;family=Roboto+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "inverse-on-surface": "#313032",
+            "secondary-container": "#c3f400",
+            "on-background": "#e5e1e4",
+            "on-surface": "#e5e1e4",
+            "error-container": "#93000a",
+            "on-primary-fixed-variant": "#6e00ab",
+            "on-secondary": "#283500",
+            "tertiary-fixed-dim": "#ffb86e",
+            "on-tertiary": "#492900",
+            "primary-container": "#a020f0",
+            "surface-bright": "#39393b",
+            "primary-fixed-dim": "#e3b5ff",
+            "on-error-container": "#ffdad6",
+            "on-error": "#690005",
+            "primary-fixed": "#f3daff",
+            "tertiary-fixed": "#ffdcbd",
+            "tertiary": "#ffb86e",
+            "on-secondary-fixed": "#161e00",
+            "background": "#131315",
+            "on-primary-container": "#f9e8ff",
+            "primary": "#e3b5ff",
+            "inverse-surface": "#e5e1e4",
+            "surface-variant": "#353437",
+            "on-tertiary-container": "#ffe9d8",
+            "surface-container-low": "#1c1b1e",
+            "on-tertiary-fixed-variant": "#693c00",
+            "inverse-primary": "#9000de",
+            "outline": "#9a8ca0",
+            "surface-container-lowest": "#0e0e10",
+            "outline-variant": "#4e4355",
+            "on-secondary-container": "#556d00",
+            "secondary": "#ffffff",
+            "on-primary-fixed": "#2f004c",
+            "surface-dim": "#131315",
+            "error": "#ffb4ab",
+            "on-surface-variant": "#d1c1d7",
+            "surface": "#131315",
+            "tertiary-container": "#9c5c00",
+            "surface-container": "#201f22",
+            "secondary-fixed": "#c3f400",
+            "on-primary": "#4d007a",
+            "secondary-fixed-dim": "#abd600",
+            "surface-tint": "#e3b5ff",
+            "surface-container-highest": "#353437",
+            "on-secondary-fixed-variant": "#3c4d00",
+            "on-tertiary-fixed": "#2c1600",
+            "surface-container-high": "#2a2a2c"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "0.75rem"
+          },
+          "fontFamily": {
+            "headline": ["Space Grotesk"],
+            "body": ["Inter"],
+            "label": ["Space Grotesk"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      width: 400px;
+      height: 600px;
+      overflow: hidden;
+      background-color: #131315;
+      font-family: 'Inter', sans-serif;
+    }
+    .glass-card {
+      background: rgba(53, 52, 55, 0.4);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(160, 32, 240, 0.2);
+    }
+    .ghost-border {
+      position: relative;
+    }
+    .ghost-border::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(160, 32, 240, 0.3), rgba(204, 255, 0, 0.1));
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+    .grid-bg {
+      background-image: radial-gradient(rgba(78, 67, 85, 0.15) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .pulse-line {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #CCFF00, transparent);
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0.4;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface select-none">
+<!-- Grid Pattern Overlay -->
+<div class="fixed inset-0 grid-bg pointer-events-none"></div>
+<!-- Shared Component: TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 py-3 bg-[#131315]/80 backdrop-blur-xl border-b border-[#A020F0]/15 shadow-[0_0_15px_rgba(160,32,240,0.1)]">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[#A020F0]" data-icon="security">security</span>
+<h1 class="text-lg font-bold tracking-tighter text-[#A020F0] font-['Space_Grotesk'] tracking-widest uppercase">PHISHGUARD</h1>
+</div>
+<button class="flex items-center justify-center p-1 text-white/60 hover:text-[#CCFF00] transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</header>
+<main class="relative h-full flex flex-col items-center justify-center pt-12 pb-16 px-6 overflow-y-auto">
+<!-- Hero Section: Scanner Shield -->
+<div class="relative w-full flex flex-col items-center mb-10">
+<div class="relative w-40 h-40 flex items-center justify-center">
+<!-- Shield Glow -->
+<div class="absolute inset-0 bg-[#A020F0]/20 blur-[40px] rounded-full"></div>
+<div class="relative glass-card w-32 h-32 rounded-xl flex items-center justify-center ghost-border shadow-[0_0_30px_rgba(160,32,240,0.2)]">
+<span class="material-symbols-outlined text-6xl text-[#E3B5FF] drop-shadow-[0_0_10px_#A020F0]" data-icon="shield" style="font-variation-settings: 'FILL' 1;">shield</span>
+<!-- Scanner Pulse Simulation -->
+<div class="pulse-line top-1/2"></div>
+</div>
+</div>
+<div class="mt-6 text-center">
+<h2 class="font-headline text-3xl font-bold tracking-tight text-white mb-1">Status: <span class="text-[#CCFF00] drop-shadow-[0_0_8px_#CCFF00]">Secure</span></h2>
+<p class="font-body text-xs text-on-surface-variant tracking-wider uppercase opacity-60">System Monitoring Active</p>
+</div>
+</div>
+<!-- Bento Grid Stats -->
+<div class="w-full grid grid-cols-2 gap-3 mb-6">
+<!-- Card 1 -->
+<div class="glass-card ghost-border p-4 rounded-lg flex flex-col gap-2">
+<span class="material-symbols-outlined text-[#CCFF00] text-sm" data-icon="link">link</span>
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-tighter">Scanned URLs</p>
+<p class="font-headline text-2xl font-bold text-white leading-none mt-1">12</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-card ghost-border p-4 rounded-lg flex flex-col gap-2">
+<span class="material-symbols-outlined text-[#A020F0] text-sm" data-icon="gpp_bad">gpp_bad</span>
+<div>
+<p class="text-[10px] text-on-surface-variant uppercase font-bold tracking-tighter">Threats Blocked</p>
+<p class="font-headline text-2xl font-bold text-white leading-none mt-1">0</p>
+</div>
+</div>
+</div>
+<!-- Secondary Contextual Module -->
+<div class="w-full glass-card ghost-border p-4 rounded-lg bg-surface-container-low/40">
+<div class="flex items-center justify-between mb-3">
+<span class="text-[10px] text-white/40 font-bold uppercase tracking-widest">Active Analysis</span>
+<span class="flex h-2 w-2 rounded-full bg-[#CCFF00] animate-pulse"></span>
+</div>
+<div class="font-mono text-[11px] text-on-primary-fixed-variant/80 space-y-1">
+<p class="flex justify-between"><span>SSL Certificate:</span> <span class="text-secondary-container">VERIFIED</span></p>
+<p class="flex justify-between"><span>Domain Age:</span> <span class="text-secondary-container">4.2 YEARS</span></p>
+<p class="flex justify-between"><span>IP Reputation:</span> <span class="text-secondary-container">CLEAN</span></p>
+</div>
+</div>
+</main>
+<!-- Shared Component: BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center h-16 px-6 bg-[#131315]/40 backdrop-blur-md rounded-t-lg bg-gradient-to-t from-[#A020F0]/10 to-transparent shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<!-- Active Item: Shield (Dashboard/Home) -->
+<a class="flex items-center justify-center text-[#CCFF00] drop-shadow-[0_0_8px_#CCFF00] active:scale-110 duration-300 ease-out group" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="shield" style="font-variation-settings: 'FILL' 1;">shield</span>
+</a>
+<a class="flex items-center justify-center text-white/40 hover:bg-white/5 active:scale-110 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="history">history</span>
+</a>
+<a class="flex items-center justify-center text-white/40 hover:bg-white/5 active:scale-110 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="insights">insights</span>
+</a>
+<a class="flex items-center justify-center text-white/40 hover:bg-white/5 active:scale-110 duration-300 ease-out" href="#">
+<span class="material-symbols-outlined text-2xl" data-icon="settings">settings</span>
+</a>
+</nav>
+<!-- Decorative Light Leak -->
+<div class="fixed top-0 right-0 w-32 h-32 bg-[#A020F0]/5 blur-[60px] pointer-events-none"></div>
+<div class="fixed bottom-0 left-0 w-32 h-32 bg-[#CCFF00]/5 blur-[60px] pointer-events-none"></div>
+</body></html>

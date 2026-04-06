@@ -73,10 +73,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 function render() {
   const root = document.getElementById('root');
   root.innerHTML = `
-    <div class="app ${state.darkMode ? 'dark' : 'light'}">
+    <div class="app">
       ${renderHeader()}
       ${renderTabNav()}
-      <div class="content">
+      <div class="content" style="position:relative; z-index:10;">
         ${state.activeTab === 'dashboard' ? renderDashboard() : renderHistory()}
       </div>
       ${renderFooter()}
@@ -88,31 +88,13 @@ function render() {
 // --------------- Header ---------------
 function renderHeader() {
   return `
-    <header class="header">
+    <header class="header" style="position:relative; z-index:10;">
       <div class="header-left">
         <div class="logo">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2L3 7v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" 
-                  fill="url(#shield-gradient)" opacity="0.9"/>
-            <path d="M12 2L3 7v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z" 
-                  stroke="url(#shield-stroke)" stroke-width="1" fill="none"/>
-            <path d="M10 15.5l-3.5-3.5 1.41-1.41L10 12.67l5.59-5.59L17 8.5l-7 7z" 
-                  fill="white" opacity="0.9"/>
-            <defs>
-              <linearGradient id="shield-gradient" x1="3" y1="2" x2="21" y2="24">
-                <stop offset="0%" stop-color="#6366f1"/>
-                <stop offset="100%" stop-color="#8b5cf6"/>
-              </linearGradient>
-              <linearGradient id="shield-stroke" x1="3" y1="2" x2="21" y2="24">
-                <stop offset="0%" stop-color="#818cf8"/>
-                <stop offset="100%" stop-color="#a78bfa"/>
-              </linearGradient>
-            </defs>
-          </svg>
+          <span class="material-symbols-outlined" style="font-size: 28px; color:#c06050;">security</span>
         </div>
         <div>
           <h1 class="app-title">PhishGuard</h1>
-          <p class="app-subtitle">AI-Powered Protection</p>
         </div>
       </div>
       <div class="header-right">
@@ -149,38 +131,36 @@ function renderTabNav() {
 function renderDashboard() {
   if (!state.scanningEnabled) {
     return `
-      <div class="status-card disabled">
-        <div class="status-icon">⏸️</div>
-        <h2>Scanning Paused</h2>
-        <p>Toggle the switch above to enable real-time protection.</p>
+      <div class="status-card disabled" style="padding: 32px 20px; text-align: center;">
+        <div class="status-icon" style="opacity: 0.5;">⏸️</div>
+        <h2 style="font-family:'IBM Plex Sans',sans-serif; color:#e8e0d4;">Scanning Paused</h2>
+        <p style="font-size:12px; color:#9a8e80;">Toggle the switch above to enable real-time protection.</p>
       </div>
     `;
   }
 
   if (state.status === 'scanning') {
     return `
-      <div class="status-card scanning">
+      <div class="status-card scanning" style="padding: 32px 20px; text-align: center; position:relative; overflow:hidden;">
         <div class="scanning-animation">
           <div class="scan-ring"></div>
           <div class="scan-ring delay-1"></div>
           <div class="scan-ring delay-2"></div>
-          <svg class="scan-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
+          <span class="material-symbols-outlined" style="font-size:40px; color:#c06050;">radar</span>
         </div>
-        <h2>Analyzing Page...</h2>
-        <p>Checking URL patterns and page content</p>
+        <h2 style="font-family:'IBM Plex Sans',sans-serif; color:#e8e0d4;">Analyzing Page...</h2>
+        <p style="font-size:12px; color:#c06050; opacity:0.8;">Checking URL patterns and page content</p>
       </div>
     `;
   }
 
   if (state.status === 'idle' || !state.currentResult) {
     return `
-      <div class="status-card idle">
-        <div class="status-icon">🔍</div>
-        <h2>No Scan Data</h2>
-        <p>Navigate to a website to start scanning</p>
-        <button class="btn-scan" id="manual-scan">Scan Current Page</button>
+      <div class="status-card idle" style="padding: 32px 20px; text-align: center;">
+        <span class="material-symbols-outlined" style="font-size:48px; margin-bottom:12px; color:rgba(192,96,80,0.4);">shield</span>
+        <h2 style="font-family:'IBM Plex Sans',sans-serif; color:#e8e0d4; font-size: 20px;">Secure Status</h2>
+        <p style="font-size:12px; color:#9a8e80; margin-bottom:16px;">Navigate to a website to start scanning</p>
+        <button class="btn-scan" id="manual-scan" style="width:100%; border-radius:8px;">Scan Current Page</button>
       </div>
     `;
   }
@@ -196,69 +176,73 @@ function renderResultCard(result) {
   const isSafe = result.risk_level === 'safe';
   const isError = result.risk_level === 'error';
 
-  let statusClass, statusIcon, statusText, statusDesc;
+  let statusClass, statusIcon, statusText, statusDesc, accentColor;
 
   if (isPhishing) {
     statusClass = 'danger';
-    statusIcon = '🚨';
+    statusIcon = 'gpp_bad';
     statusText = 'PHISHING DETECTED';
     statusDesc = 'This website is likely a phishing page.';
+    accentColor = '#c0504e';
   } else if (isSuspicious) {
     statusClass = 'warning';
-    statusIcon = '⚠️';
+    statusIcon = 'warning';
     statusText = 'SUSPICIOUS';
     statusDesc = 'This website shows suspicious characteristics.';
+    accentColor = '#c98a4b';
   } else if (isError) {
     statusClass = 'error';
-    statusIcon = '❌';
+    statusIcon = 'error';
     statusText = 'SCAN ERROR';
     statusDesc = 'Could not complete the analysis.';
+    accentColor = '#6b6058';
   } else {
     statusClass = 'safe';
-    statusIcon = '✅';
+    statusIcon = 'verified_user';
     statusText = 'SAFE';
     statusDesc = 'No phishing indicators detected.';
+    accentColor = '#6a9a6e';
   }
 
   return `
-    <div class="result-card ${statusClass}">
-      <div class="result-header">
-        <span class="result-icon">${statusIcon}</span>
+    <div class="result-card ${statusClass}" style="position:relative; overflow:hidden;">
+      <div class="result-header" style="gap:14px;">
+        <span class="material-symbols-outlined" style="font-size:36px; color:${accentColor};">${statusIcon}</span>
         <div>
-          <div class="result-status">${statusText}</div>
-          <div class="result-desc">${statusDesc}</div>
+          <div class="result-status" style="font-family:'IBM Plex Sans',sans-serif; letter-spacing:1px; font-size:16px; color:${accentColor};">${statusText}</div>
+          <div class="result-desc" style="color:#9a8e80; font-size:11px;">${statusDesc}</div>
         </div>
       </div>
 
       ${!isError ? `
         <div class="score-section">
-          <div class="score-label">Risk Score</div>
+          <div class="score-label" style="font-family:'IBM Plex Sans',sans-serif; letter-spacing:0.5px;">Risk Score</div>
           <div class="score-bar-bg">
-            <div class="score-bar-fill ${statusClass}" style="width: ${result.final_score}%"></div>
+            <div class="score-bar-fill ${statusClass}" style="width: ${result.final_score}%; background: linear-gradient(90deg, #c06050, ${accentColor});"></div>
           </div>
           <div class="score-numbers">
-            <span class="score-value">${result.final_score}%</span>
-            <div class="score-breakdown">
-              <span title="LLM Analysis Score">🤖 ${result.llm_score || 0}%</span>
-              <span title="Rule Engine Score">📏 ${result.rule_score || 0}%</span>
+            <span class="score-value" style="font-family:'IBM Plex Sans',sans-serif; color:#e8e0d4;">${result.final_score}%</span>
+            <div class="score-breakdown" style="font-family:'IBM Plex Mono',monospace;">
+              <span title="LLM Analysis Score"><span class="material-symbols-outlined" style="font-size:12px; vertical-align:middle; color:#c06050;">smart_toy</span> ${result.llm_score || 0}%</span>
+              <span title="Rule Engine Score"><span class="material-symbols-outlined" style="font-size:12px; vertical-align:middle; color:#6a9a6e;">rule</span> ${result.rule_score || 0}%</span>
             </div>
           </div>
         </div>
 
         ${result.llm_available === false ? `
-          <div class="llm-badge offline">
-            <span>⚡</span> LLM Offline — Using rule-based analysis only
+          <div class="llm-badge offline" style="border-radius:8px;">
+            <span class="material-symbols-outlined" style="font-size:14px;">flash_off</span> LLM Offline — Using rule-based analysis only
           </div>
         ` : `
-          <div class="llm-badge online">
-            <span>🧠</span> AI + Rule Engine Analysis
+          <div class="llm-badge online" style="border-radius:8px;">
+            <span class="material-symbols-outlined" style="font-size:14px;">psychology</span> AI + Rule Engine Analysis
           </div>
         `}
       ` : ''}
 
       ${result.reasons && result.reasons.length > 0 ? `
         <div class="reasons-section">
-          <div class="reasons-title">Analysis Details</div>
+          <div class="reasons-title" style="font-family:'IBM Plex Sans',sans-serif;">Analysis Details</div>
           <ul class="reasons-list">
             ${result.reasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
           </ul>
@@ -268,17 +252,18 @@ function renderResultCard(result) {
       ${result.cookieAnalysis ? (() => {
         const cr = result.cookieAnalysis;
         const riskClass = cr.cookieRisk;
-        const riskIcon = riskClass === 'high' ? '🔴' : riskClass === 'medium' ? '🟡' : '🟢';
+        const riskIcon = riskClass === 'high' ? 'cookie_off' : riskClass === 'medium' ? 'cookie' : 'verified';
+        const riskColor = riskClass === 'high' ? '#c0504e' : riskClass === 'medium' ? '#c98a4b' : '#6a9a6e';
         const riskMsg = riskClass === 'high'
           ? 'High-risk tracking cookies detected'
           : riskClass === 'medium'
           ? 'This site uses tracking cookies'
           : 'This site looks safe';
         return `
-        <div class="cookie-section ${riskClass}">
-          <div class="cookie-title">🍪 Cookie Analysis</div>
-          <div class="cookie-message ${riskClass}">
-            <span class="cookie-message-icon">${riskIcon}</span>
+        <div class="cookie-section ${riskClass}" style="border:1px solid ${riskColor}20; border-radius:12px;">
+          <div class="cookie-title" style="font-family:'IBM Plex Sans',sans-serif;"><span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle;">cookie</span> Cookie Analysis</div>
+          <div class="cookie-message ${riskClass}" style="border-radius:10px;">
+            <span class="material-symbols-outlined" style="font-size:16px; color:${riskColor};">${riskIcon}</span>
             <span class="cookie-message-text">${riskMsg}</span>
           </div>
           <div class="cookie-stats">
@@ -297,17 +282,14 @@ function renderResultCard(result) {
           </div>
           ${result.combined_risk && result.combined_risk !== result.risk_level ? `
             <div class="combined-risk-note">
-              ⚡ Combined risk elevated to <strong>${result.combined_risk.toUpperCase()}</strong> due to cookie analysis
+              <span class="material-symbols-outlined" style="font-size:12px; vertical-align:middle;">bolt</span> Combined risk elevated to <strong>${result.combined_risk.toUpperCase()}</strong> due to cookie analysis
             </div>
           ` : ''}
         </div>`;
       })() : ''}
 
       <div class="url-display" title="${escapeHtml(result.url || '')}">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-        </svg>
+        <span class="material-symbols-outlined" style="font-size:12px; color:#c06050;">link</span>
         <span>${truncateUrl(result.url || 'Unknown URL')}</span>
       </div>
     </div>
@@ -318,10 +300,10 @@ function renderResultCard(result) {
 function renderHistory() {
   if (state.history.length === 0) {
     return `
-      <div class="status-card idle">
-        <div class="status-icon">📋</div>
-        <h2>No History Yet</h2>
-        <p>Scanned pages will appear here</p>
+      <div class="status-card idle" style="padding: 32px 20px; text-align: center;">
+        <span class="material-symbols-outlined" style="font-size:48px; color:rgba(192,96,80,0.25); margin-bottom:12px;">history</span>
+        <h2 style="font-family:'IBM Plex Sans',sans-serif; color:#e8e0d4; font-size:16px;">No History Yet</h2>
+        <p style="font-size:12px; color:#9a8e80;">Scanned pages will appear here</p>
       </div>
     `;
   }
@@ -329,13 +311,15 @@ function renderHistory() {
   return `
     <div class="history-list">
       ${state.history.slice(0, 15).map(item => {
-        const icon = item.risk_level === 'phishing' ? '🚨' :
-                     item.risk_level === 'suspicious' ? '⚠️' : '✅';
+        const isPhishing = item.risk_level === 'phishing';
+        const isSuspicious = item.risk_level === 'suspicious';
+        const iconName = isPhishing ? 'gpp_bad' : isSuspicious ? 'warning' : 'verified_user';
+        const accentColor = isPhishing ? '#c0504e' : isSuspicious ? '#c98a4b' : '#6a9a6e';
         const cls = item.risk_level || 'safe';
         const time = formatTime(item.timestamp);
         return `
-          <div class="history-item ${cls}">
-            <span class="history-icon">${icon}</span>
+          <div class="history-item ${cls}" style="border-left: 3px solid ${accentColor};">
+            <span class="material-symbols-outlined" style="font-size:18px; color:${accentColor};">${iconName}</span>
             <div class="history-details">
               <div class="history-url">${truncateUrl(item.url || 'Unknown')}</div>
               <div class="history-meta">
@@ -353,8 +337,8 @@ function renderHistory() {
 // --------------- Footer ---------------
 function renderFooter() {
   return `
-    <footer class="footer">
-      <span>PhishGuard v1.0</span>
+    <footer class="footer" style="z-index:10; position:relative;">
+      <span style="font-family:'IBM Plex Sans',sans-serif; letter-spacing:0.5px; color:#6b6058;">PhishGuard v1.0</span>
       <span class="dot">·</span>
       <span class="footer-status ${state.scanningEnabled ? 'on' : 'off'}">
         ${state.scanningEnabled ? '● Active' : '○ Paused'}

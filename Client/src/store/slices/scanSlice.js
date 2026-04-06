@@ -9,7 +9,7 @@
  */
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { checkHealth, fetchHistory, analyzeUrl } from '../../api/phishingApi';
+import { checkHealth, fetchHistory, analyzeUrl, fetchStats } from '../../api/phishingApi';
 
 // --------------- Async Thunks ---------------
 
@@ -36,6 +36,17 @@ export const loadHistory = createAsyncThunk(
 );
 
 /**
+ * Load aggregate statistics from the server.
+ */
+export const loadStats = createAsyncThunk(
+  'scan/loadStats',
+  async () => {
+    const data = await fetchStats();
+    return data;
+  }
+);
+
+/**
  * Submit a URL for phishing analysis.
  */
 export const scanUrl = createAsyncThunk(
@@ -54,6 +65,7 @@ const initialState = {
   scanResult: null,
   scanning: false,
   history: [],
+  stats: { total: 0, phishing: 0, suspicious: 0, safe: 0 },
   serverOnline: false,
 };
 
@@ -81,6 +93,11 @@ const scanSlice = createSlice({
     builder.addCase(loadHistory.rejected, (state) => {
       // Server offline — keep existing history
       console.log('SERVER IS OFFLINE');
+    });
+
+    // --- loadStats ---
+    builder.addCase(loadStats.fulfilled, (state, action) => {
+      state.stats = action.payload;
     });
 
     // --- scanUrl ---

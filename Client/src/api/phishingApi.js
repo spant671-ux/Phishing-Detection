@@ -38,3 +38,12 @@ export async function analyzeUrl(url, content = '') {
   const response = await axiosInstance.post('/analyze', { url, content });
   return response.data;
 }
+
+/**
+ * Fetch aggregate scan statistics.
+ * @returns {Promise<object>} { total, phishing, suspicious, safe }
+ */
+export async function fetchStats() {
+  const response = await axiosInstance.get('/history/stats');
+  return response.data;
+}

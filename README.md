@@ -9,6 +9,20 @@ A real-time phishing detection browser extension and web dashboard that combines
 
 ---
 
+## 📸 Screenshots
+
+### 🔌 Browser Extension — Popup Dashboard
+<p align="center">
+  <img src="screenshots/extension-popup.png" alt="PhishGuard Extension Popup" width="800"/>
+</p>
+
+### 🖥️ Web Dashboard — Threat Overview
+<p align="center">
+  <img src="screenshots/web-dashboard.png" alt="PhishGuard Web Dashboard" width="800"/>
+</p>
+
+---
+
 ## 📁 Project Structure
 
 ```

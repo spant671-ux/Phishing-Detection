@@ -19,7 +19,7 @@ if (window.__phishguard_loaded) {
         const content = extractPageContent();
         chrome.runtime.sendMessage({
           type: 'CONTENT_EXTRACTED',
-          url: message.url || window.location.href,
+          url: message.url || window.location.href,1
           content: content
         });
         sendResponse({ success: true });
